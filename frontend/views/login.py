@@ -217,11 +217,11 @@ class LoginApp:
             messagebox.showwarning("Gagal Masuk", "Mohon isi Username dan Password!")
             return
 
-        token = self.auth_service.login(user, pwd)
+        response_data = self.auth_service.login(user, pwd)
         
-        if token:
+        if response_data:
             self.main_container.destroy()
-            self.on_login_success(token)
+            self.on_login_success(response_data)
         else:
             messagebox.showerror("Login Gagal", "Username atau Password salah!")
 
