@@ -29,10 +29,11 @@ from views.fiturPulsa import PulsaView
 from views.fiturTokenListrik import ListrikView, TokenResultView
 
 class MainApp:
-    def __init__(self, root, token, logout_callback):
+    def __init__(self, root, token,user_data, logout_callback):
         self.root = root
         self.logout_callback = logout_callback
         self.token = token 
+        self.user_data = user_data
       
         # Init Backend
         self.service = WalletService(token=self.token)
@@ -58,19 +59,17 @@ class MainApp:
             self.active_frame = None
 
     def get_user_dict(self):
-        """Ambil data terbaru dari API"""
-        user_data = self.service.get_current_user_data()
-        
-        if not user_data:
-            # Jika token expired atau server mati
-            # messagebox.showerror("Error", "Gagal memuat data user / Sesi Habis")
-            # self.handle_logout()
-            return {}
+        result = self.service.get_current_user_data() 
 
-        if isinstance(user_data, dict):
-            return user_data
-        else:
-            return user_data.to_dict() 
+        if result:
+            # Jika hasil dari service berbentuk {"data": {...}}, ambil isinya
+            if isinstance(result, dict) and "data" in result:
+                self.user_data = result["data"]
+            else:
+                self.user_data = result
+            return self.user_data
+        # kembalikan self.user_data lama yang didapat dari respons Login Go.
+        return self.user_data
 
     def show_page(self, page_name):
         self.clear_screen()
@@ -210,9 +209,14 @@ class AppController:
         self.clear_root()
         self.current_app = LoginApp(self.root, on_login_success=self.show_dashboard)
 
-    def show_dashboard(self, token):
+    # DI FILE main.py (AppController)
+    def show_dashboard(self, data): # Terima data user lengkap
+        token = data.get("token")
+        user_info = data.get("user") # Ambil objek user-nya
+        
         self.clear_root()
-        self.current_app = MainApp(self.root, token, logout_callback=self.show_login)
+        # Kirim user_info ke MainApp agar langsung bisa dipakai
+        self.current_app = MainApp(self.root, token, user_info, logout_callback=self.show_login)
 
     def clear_root(self):
         for widget in self.root.winfo_children():
