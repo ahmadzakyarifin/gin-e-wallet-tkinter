@@ -16,33 +16,34 @@ class AuthService:
         self.TIMEOUT = 10
 
     def login(self, username, password):
-        """Mengirim request login ke Golang, return Token jika sukses"""
         try:
-            url = f"{self.BASE_URL}/login"
+            url = f"{self.BASE_URL}/auth/login"
             payload = {"username": username, "password": password}
             
             response = requests.post(url, json=payload, headers=self.headers, timeout=self.TIMEOUT)
-            data = response.json()
-
-            if response.status_code == 200:
-                # Sukses: return token string
-                return data.get("token") 
+            
+            # Cek apakah Content-Type adalah JSON
+            if "application/json" in response.headers.get("Content-Type", ""):
+                data = response.json()
+                if response.status_code == 200:
+                    return data  # Kembalikan data lengkap termasuk token dan user info
+                else:
+                    print(f"[Login Failed] {data.get('error')}")
+                    return None
             else:
-                # Gagal: print error dan return None
-                print(f"[Login Failed] {data.get('error')}")
+                # Jika bukan JSON, print teks mentahnya (bisa jadi error 404 atau 500)
+                print(f"[Server Error] Respon bukan JSON: {response.text}")
                 return None
-        except requests.exceptions.ConnectionError:
-            print("[Network Error] Tidak bisa terhubung ke server Golang.")
-            return None
+                
         except Exception as e:
             print(f"[System Error] {str(e)}")
             return None
 
-    def register(self, nama, email, password, no_hp):
+    def register(self,username, email, password, no_hp):
         try:
-            url = f"{self.BASE_URL}/register"
+            url = f"{self.BASE_URL}/auth/register"
             payload = {
-                "nama": nama,
+                "username": username,
                 "email": email,
                 "password": password,
                 "no_hp": no_hp
