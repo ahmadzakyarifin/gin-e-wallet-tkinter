@@ -11,13 +11,15 @@ class WalletService:
         
         self.token = token
 
-        self.headers = {
+        self.TIMEOUT = 10 
+    @property
+    def headers(self):
+        """Menghasilkan header terbaru dengan token yang aktif saat ini"""
+        return {
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
-
-        self.TIMEOUT = 10 
 
     def _handle_request_error(self, e):
         """Helper internal untuk menangani error koneksi"""
