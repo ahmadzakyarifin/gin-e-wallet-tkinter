@@ -34,12 +34,11 @@ class HomeView:
             pass
         
         # --- DATA DARI API ---
-        # Pastikan JSON dari Golang menggunakan key huruf kecil (lowercase)
-        nama = self.user_data.get("nama", "User") if self.user_data else "User"
+        nama = self.user_data.get("username", "User") if self.user_data else "User"
         level = self.user_data.get("level", "Silver") if self.user_data else "Silver"
         saldo = self.user_data.get("saldo", 0) if self.user_data else 0
-        pemasukan = self.user_data.get("pemasukan", 0) if self.user_data else 0
-        pengeluaran = self.user_data.get("pengeluaran", 0) if self.user_data else 0
+        pemasukan = self.user_data.get("limit_pemasukan", 0) if self.user_data else 0
+        pengeluaran = self.user_data.get("limit_pengeluaran", 0) if self.user_data else 0
         
         # --- HEADER ---
         self.canvas.create_rectangle(0, 0, self.W, 260, fill=Theme.PRIMARY, outline="")
